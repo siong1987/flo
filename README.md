@@ -75,6 +75,8 @@ Public: Search for a term
         ]
     }
 
+For more information, you can read it [here](http://flochip.github.com/flo/docs/).
+
 ## Tests
 To run tests, first make sure your local redis is running, then:
 
