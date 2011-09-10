@@ -1,12 +1,73 @@
-## flo
-flo is a [redis](http://redis.io) powered [node.js](http://nodejs.org) autocompleter inspired by [soulmate](https://github.com/seatgeek/soulmate).
+flo
+===
+**flo** is a [redis](http://redis.io) powered [node.js](http://nodejs.org) autocompleter inspired by [soulmate](https://github.com/seatgeek/soulmate).
+
+Documentations
+==============
+
+First, connect to the redis instance:
+
+Sets up a new Redis Connection.
+
+    var flo = require('flo').connect();
+
+options - Optional Hash of options.
+
+* `redis`       - An existing redis connection to use.
+* `host`        - String Redis host. (Default: Redis' default)
+* `port`        - Integer Redis port. (Default: Redis' default)
+* `password`    - String Redis password.
+* `namespace`   - String namespace prefix for Redis keys. (Default: flo).
+* `mincomplete` - Minimum completion of keys required for auto completion. (Default: 1)
+* `database`    - Integer of the Redis database to select.
+
+Returns a Connection instance.
+
+There are two main command that you can use `add_term` and `search_term`:
+
+`add_term`:
+
+Public: Add a new term
+
+* `type`     - the type of data of this term (String)
+* `id`       - unique identifier(within the specific type)
+* `term`     - the phrase you wish to provide completions for
+* `score`    - user specified ranking metric (redis will order things lexicographically for items with the same score)
+* `data`     - container for metadata that you would like to return when this item is matched (optional)
+* `callback` - callback to be run (optional)
+
+Returns nothing.
+
+`search_term`:
+
+Public: Search for a term
+
+* `types` - types of term that you are looking for (Array of Strina)
+* `phrase` - the phrase or phrases you want to be autocompleted
+* `limit` - the count of the number you want to return (optional, default: 5)
+* `callback(err, result)` - err is the error and results is the results
+
+`results` will be returned in json format like:
+
+    {
+      term: "search term"
+      type1: [
+          {
+            id: 3,
+            term: "real term",
+            score: 10,
+            data: {}
+          }
+        ]
+    }
 
 ## Tests
 To run tests, first make sure your local redis is running, then:
+
     ./node_modules/expresso/bin/expresso test/*.test.js
 
 ### License
-MIT License
+[MIT License](https://github.com/FLOChip/flo/blob/master/LICENSE)
 
 ---
 ### Author

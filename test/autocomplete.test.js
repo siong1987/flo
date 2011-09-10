@@ -68,7 +68,6 @@
           }), callback);
         }), (function(callback) {
           return flo.search_term(["venues", "food"], "stadium", function(err, results) {
-            console.log(results);
             assert.equal(3, results.venues.length);
             return callback();
           });

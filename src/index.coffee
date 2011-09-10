@@ -114,7 +114,7 @@ class Connection
     async.parallel([
       ((callb) =>
         @redis.hset @key(type, "data"), id,
-          JSON.stringify term: term, score: score, data: (data || []),
+          JSON.stringify id: id, term: term, score: score, data: (data || []),
           ->
             callb()
       ),

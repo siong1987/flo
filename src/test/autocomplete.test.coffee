@@ -67,7 +67,6 @@ module.exports =
       ((callback) ->
         flo.search_term ["venues", "food"], "stadium",
         (err, results) ->
-          console.log results
           assert.equal(3, results.venues.length)
           callback()
       ),

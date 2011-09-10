@@ -86,6 +86,7 @@
       return async.parallel([
         (__bind(function(callb) {
           return this.redis.hset(this.key(type, "data"), id, JSON.stringify({
+            id: id,
             term: term,
             score: score,
             data: data || []
