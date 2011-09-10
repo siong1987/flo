@@ -47,7 +47,7 @@ Public: Search for a term
 * `limit` - the count of the number you want to return (optional, default: 5)
 * `callback(err, result)` - err is the error and results is the results
 
-`results` will be returned in json format like:
+`result` will be returned in json format like:
 
     {
       term: "rice"
