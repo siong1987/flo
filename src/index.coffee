@@ -1,7 +1,9 @@
+# **[flo](https://github.com/FLOChip/flo)** is an redis powered node.js autocompleter inspired by [soulmate](https://github.com/seatgeek/soulmate).
+# You can check out some examples [here](https://github.com/FLOChip/flo/tree/master/examples).
 _ = require "underscore"
 async = require "async"
 
-# Sets up a new Resque Connection.
+# Sets up a new Redis Connection.
 #
 # options - Optional Hash of options.
 #
