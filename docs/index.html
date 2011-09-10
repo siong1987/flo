@@ -1,0 +1,186 @@
+<!DOCTYPE html>  <html> <head>   <title>index.coffee</title>   <meta http-equiv="content-type" content="text/html; charset=UTF-8">   <link rel="stylesheet" media="all" href="docco.css" /> </head> <body>   <div id="container">     <div id="background"></div>          <table cellpadding="0" cellspacing="0">       <thead>         <tr>           <th class="docs">             <h1>               index.coffee             </h1>           </th>           <th class="code">           </th>         </tr>       </thead>       <tbody>                               <tr id="section-1">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-1">&#182;</a>               </div>                            </td>             <td class="code">               <div class="highlight"><pre><span class="nv">_ = </span><span class="nx">require</span> <span class="s2">&quot;underscore&quot;</span>
+<span class="nv">async = </span><span class="nx">require</span> <span class="s2">&quot;async&quot;</span></pre></div>             </td>           </tr>                               <tr id="section-2">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-2">&#182;</a>               </div>               <p>Sets up a new Resque Connection.</p>
+
+<p>options - Optional Hash of options.</p>
+
+<ul>
+<li><code>redis</code>       - An existing redis connection to use.</li>
+<li><code>host</code>        - String Redis host.  (Default: Redis' default)</li>
+<li><code>port</code>        - Integer Redis port.  (Default: Redis' default)</li>
+<li><code>password</code>    - String Redis password.</li>
+<li><code>namespace</code>   - String namespace prefix for Redis keys.
+          (Default: flo).</li>
+<li><code>mincomplete</code> - Minimum completion of keys required for auto completion.
+          (Default: 1)</li>
+<li><code>database</code>    - Integer of the Redis database to select.</li>
+</ul>
+
+<p>Returns a Connection instance.</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nv">exports.connect = </span><span class="nf">(options) -&gt;</span>
+  <span class="k">new</span> <span class="nx">exports</span><span class="p">.</span><span class="nx">Connection</span> <span class="nx">options</span> <span class="o">||</span> <span class="p">{}</span></pre></div>             </td>           </tr>                               <tr id="section-3">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-3">&#182;</a>               </div>               <p>Handles the connection to the Redis server.</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="k">class</span> <span class="nx">Connection</span>
+  <span class="nv">constructor: </span><span class="nf">(options) -&gt;</span>
+    <span class="vi">@helper      = </span><span class="k">new</span> <span class="nx">Helper</span>
+    <span class="vi">@redis       = </span><span class="nx">options</span><span class="p">.</span><span class="nx">redis</span>       <span class="o">||</span> <span class="nx">connectToRedis</span> <span class="nx">options</span>
+    <span class="vi">@namespace   = </span><span class="nx">options</span><span class="p">.</span><span class="nx">namespace</span>   <span class="o">||</span> <span class="s1">&#39;flo&#39;</span>
+    <span class="vi">@mincomplete = </span><span class="nx">options</span><span class="p">.</span><span class="nx">mincomplete</span> <span class="o">||</span> <span class="mi">1</span>
+    <span class="nx">@redis</span><span class="p">.</span><span class="nx">select</span> <span class="nx">options</span><span class="p">.</span><span class="nx">database</span> <span class="k">if</span> <span class="nx">options</span><span class="p">.</span><span class="nx">database</span><span class="o">?</span></pre></div>             </td>           </tr>                               <tr id="section-4">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-4">&#182;</a>               </div>               <p>Public: Get all prefixes for a phrase</p>
+
+<ul>
+<li><code>phrase</code> - the phrase that needs to be parsed into many prefixes</li>
+</ul>
+
+<p>Returns an array of unique prefixes for the phrase</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">prefixes_for_phrase: </span><span class="nf">(phrase) -&gt;</span>
+    <span class="nv">words = </span><span class="nx">@helper</span><span class="p">.</span><span class="nx">normalize</span><span class="p">(</span><span class="nx">phrase</span><span class="p">).</span><span class="nx">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+    <span class="nx">_</span><span class="p">.</span><span class="nx">uniq</span><span class="p">(</span>
+      <span class="nx">_</span><span class="p">.</span><span class="nx">flatten</span><span class="p">(</span>
+        <span class="nx">_</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">words</span><span class="p">,</span> <span class="p">(</span><span class="nx">w</span><span class="p">)</span> <span class="o">=&gt;</span>
+          <span class="nx">_</span><span class="p">.</span><span class="nx">map</span><span class="p">([(</span><span class="nx">@mincomplete</span><span class="o">-</span><span class="mi">1</span><span class="p">)..(</span><span class="nx">w</span><span class="p">.</span><span class="nx">length</span><span class="o">-</span><span class="mi">1</span><span class="p">)],</span> <span class="nf">(l) -&gt;</span>
+            <span class="nx">w</span><span class="p">[</span><span class="mi">0</span><span class="p">..</span><span class="nx">l</span><span class="p">]</span>
+          <span class="p">)</span>
+        <span class="p">)</span>
+      <span class="p">)</span>
+    <span class="p">)</span></pre></div>             </td>           </tr>                               <tr id="section-5">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-5">&#182;</a>               </div>               <p>Public: Search for a term</p>
+
+<ul>
+<li><code>types</code> - types of term that you are looking for (Array of Strina)</li>
+<li><code>phrase</code> - the phrase or phrases you want to be autocompleted</li>
+<li><code>limit</code> - the count of the number you want to return (optional, default: 5)</li>
+<li><code>callback(err, result)</code> - err is the error and results is the results</li>
+</ul>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">search_term: </span><span class="nf">(types, phrase, args...) -&gt;</span>
+    <span class="k">if</span> <span class="k">typeof</span><span class="p">(</span><span class="nx">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="s1">&#39;number&#39;</span>
+      <span class="nv">limit = </span><span class="nx">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">else</span>
+      <span class="nv">limit = </span><span class="mi">5</span>
+    <span class="nv">callback = </span><span class="nx">args</span><span class="p">[</span><span class="nx">args</span><span class="p">.</span><span class="nx">length</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="nx">async</span><span class="p">.</span><span class="nx">map</span> <span class="nx">types</span><span class="p">,</span> <span class="p">(</span><span class="nx">type</span><span class="p">,</span> <span class="nx">callb</span><span class="p">)</span> <span class="o">=&gt;</span>
+      <span class="nv">words = </span><span class="nx">_</span><span class="p">.</span><span class="nx">uniq</span><span class="p">(</span>
+        <span class="nx">@helper</span><span class="p">.</span><span class="nx">normalize</span><span class="p">(</span><span class="nx">phrase</span><span class="p">).</span><span class="nx">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+      <span class="p">).</span><span class="nx">sort</span><span class="p">()</span></pre></div>             </td>           </tr>                               <tr id="section-6">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-6">&#182;</a>               </div>               <p>for caching purpose</p>             </td>             <td class="code">               <div class="highlight"><pre>      <span class="nv">cachekey = </span><span class="nx">@key</span><span class="p">(</span><span class="nx">type</span><span class="p">,</span> <span class="s2">&quot;cache&quot;</span><span class="p">,</span> <span class="nx">words</span><span class="p">.</span><span class="nx">join</span><span class="p">(</span><span class="s1">&#39;|&#39;</span><span class="p">))</span>
+      <span class="nx">async</span><span class="p">.</span><span class="nx">waterfall</span><span class="p">([</span>
+        <span class="p">((</span><span class="nx">cb</span><span class="p">)</span> <span class="o">=&gt;</span>
+          <span class="nx">@redis</span><span class="p">.</span><span class="nx">exists</span> <span class="nx">cachekey</span><span class="p">,</span> <span class="nx">cb</span>
+        <span class="p">),</span>
+        <span class="p">((</span><span class="nx">exists</span><span class="p">,</span> <span class="nx">cb</span><span class="p">)</span> <span class="o">=&gt;</span>
+          <span class="k">if</span> <span class="o">!</span><span class="nx">exists</span>
+            <span class="nv">interkeys = </span><span class="nx">_</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">words</span><span class="p">,</span> <span class="p">(</span><span class="nx">w</span><span class="p">)</span> <span class="o">=&gt;</span>
+              <span class="nx">@key</span><span class="p">(</span><span class="nx">type</span><span class="p">,</span> <span class="s2">&quot;index&quot;</span><span class="p">,</span> <span class="nx">w</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="nx">@redis</span><span class="p">.</span><span class="nx">zinterstore</span> <span class="nx">cachekey</span><span class="p">,</span> <span class="nx">interkeys</span><span class="p">.</span><span class="nx">length</span><span class="p">,</span> <span class="nx">interkeys</span><span class="p">...,</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">count</span><span class="p">)</span> <span class="o">=&gt;</span>
+              <span class="nx">@redis</span><span class="p">.</span><span class="nx">expire</span> <span class="nx">cachekey</span><span class="p">,</span> <span class="mi">10</span> <span class="o">*</span> <span class="mi">60</span><span class="p">,</span> <span class="o">-&gt;</span> <span class="c1"># expire after 10 minutes</span>
+                <span class="nx">cb</span><span class="p">()</span>
+          <span class="k">else</span>
+            <span class="nx">cb</span><span class="p">()</span>
+        <span class="p">),</span>
+        <span class="p">((</span><span class="nx">cb</span><span class="p">)</span> <span class="o">=&gt;</span>
+          <span class="nx">@redis</span><span class="p">.</span><span class="nx">zrevrange</span> <span class="nx">cachekey</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="nx">limit</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">ids</span><span class="p">)</span> <span class="o">=&gt;</span>
+            <span class="k">if</span> <span class="nx">ids</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">0</span>
+              <span class="nx">@redis</span><span class="p">.</span><span class="nx">hmget</span> <span class="nx">@key</span><span class="p">(</span><span class="nx">type</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">),</span> <span class="nx">ids</span><span class="p">...,</span> <span class="nx">cb</span>
+            <span class="k">else</span>
+              <span class="nx">cb</span><span class="p">(</span><span class="kc">null</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="p">)</span>
+      <span class="p">],</span> <span class="nf">(err, results) -&gt;</span>
+        <span class="nv">data = </span><span class="p">{}</span>
+        <span class="nx">data</span><span class="p">[</span><span class="nx">type</span><span class="p">]</span> <span class="o">=</span> <span class="nx">results</span>
+        <span class="nx">callb</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">data</span><span class="p">)</span>
+      <span class="p">)</span>
+    <span class="p">,</span> <span class="nf">(err, results) -&gt;</span>
+      <span class="nv">results = </span><span class="nx">_</span><span class="p">.</span><span class="nx">extend</span> <span class="nx">results</span><span class="p">...</span>
+      <span class="nv">results.term = </span><span class="nx">phrase</span>
+      <span class="nx">callback</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">results</span><span class="p">)</span></pre></div>             </td>           </tr>                               <tr id="section-7">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-7">&#182;</a>               </div>               <p>Public: Add a new term</p>
+
+<ul>
+<li><code>type</code>     - the type of data of this term (String)</li>
+<li><code>id</code>       - unique identifier(within the specific type)</li>
+<li><code>term</code>     - the phrase you wish to provide completions for</li>
+<li><code>score</code>    - user specified ranking metric (redis will order things lexicographically for items with the same score)</li>
+<li><code>data</code>     - container for metadata that you would like to return when this item is matched (optional)</li>
+<li><code>callback</code> - callback to be run (optional)</li>
+</ul>
+
+<p>Returns nothing.</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">add_term: </span><span class="nf">(type, id, term, score, data, callback) -&gt;</span></pre></div>             </td>           </tr>                               <tr id="section-8">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-8">&#182;</a>               </div>               <p>store the data in parallel</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="nx">async</span><span class="p">.</span><span class="nx">parallel</span><span class="p">([</span>
+      <span class="p">((</span><span class="nx">callb</span><span class="p">)</span> <span class="o">=&gt;</span>
+        <span class="nx">@redis</span><span class="p">.</span><span class="nx">hset</span> <span class="nx">@key</span><span class="p">(</span><span class="nx">type</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">),</span> <span class="nx">id</span><span class="p">,</span>
+          <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span> <span class="nv">term: </span><span class="nx">term</span><span class="p">,</span> <span class="nv">score: </span><span class="nx">score</span><span class="p">,</span> <span class="nv">data: </span><span class="p">(</span><span class="nx">data</span> <span class="o">||</span> <span class="p">[]),</span>
+          <span class="o">-&gt;</span>
+            <span class="nx">callb</span><span class="p">()</span>
+      <span class="p">),</span>
+      <span class="p">((</span><span class="nx">callb</span><span class="p">)</span> <span class="o">=&gt;</span>
+        <span class="nx">async</span><span class="p">.</span><span class="nx">forEach</span> <span class="nx">@prefixes_for_phrase</span><span class="p">(</span><span class="nx">term</span><span class="p">),</span>
+        <span class="p">((</span><span class="nx">w</span><span class="p">,</span> <span class="nx">cb</span><span class="p">)</span> <span class="o">=&gt;</span>
+          <span class="nx">@redis</span><span class="p">.</span><span class="nx">zadd</span> <span class="nx">@key</span><span class="p">(</span><span class="nx">type</span><span class="p">,</span> <span class="s2">&quot;index&quot;</span><span class="p">,</span> <span class="nx">w</span><span class="p">),</span> <span class="nx">score</span><span class="p">,</span> <span class="nx">id</span><span class="p">,</span> <span class="c1"># sorted set</span>
+          <span class="o">-&gt;</span> <span class="nx">cb</span><span class="p">()</span>
+        <span class="p">),</span> <span class="o">-&gt;</span>
+          <span class="nx">callb</span><span class="p">()</span>
+      <span class="p">)</span>
+    <span class="p">],</span> <span class="o">-&gt;</span>
+      <span class="nx">callback</span><span class="p">()</span> <span class="k">if</span> <span class="nx">callback</span><span class="o">?</span>
+    <span class="p">)</span></pre></div>             </td>           </tr>                               <tr id="section-9">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-9">&#182;</a>               </div>               <p>Public: Get the redis instance</p>
+
+<p>Returns the redis instance.</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">redis: </span><span class="o">-&gt;</span>
+    <span class="nx">@redis</span></pre></div>             </td>           </tr>                               <tr id="section-10">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-10">&#182;</a>               </div>               <p>Public: Quits the connection to the Redis server.</p>
+
+<p>Returns nothing.</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">end: </span><span class="o">-&gt;</span>
+    <span class="nx">@redis</span><span class="p">.</span><span class="nx">quit</span><span class="p">()</span></pre></div>             </td>           </tr>                               <tr id="section-11">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-11">&#182;</a>               </div>               <p>Builds a namespaced Redis key with the given arguments.</p>
+
+<ul>
+<li><code>type</code> - Type of the param</li>
+<li><code>args</code> - Array of Strings.</li>
+</ul>
+
+<p>Returns an assembled String key.</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">key: </span><span class="nf">(args...) -&gt;</span>
+    <span class="nx">args</span><span class="p">.</span><span class="nx">unshift</span> <span class="nx">@namespace</span>
+    <span class="nx">args</span><span class="p">.</span><span class="nx">join</span> <span class="s2">&quot;:&quot;</span>
+
+<span class="k">class</span> <span class="nx">Helper</span></pre></div>             </td>           </tr>                               <tr id="section-12">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-12">&#182;</a>               </div>               <p>Public: Normalize a term to remove all other characters than a-z and 0-9.</p>
+
+<ul>
+<li><code>term</code> - the term to be normalized</li>
+</ul>
+
+<p>Returns a normalized term.</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">normalize: </span><span class="nf">(term) -&gt;</span>
+    <span class="nx">@strip</span><span class="p">(</span><span class="nx">@gsub</span><span class="p">(</span><span class="nx">term</span><span class="p">.</span><span class="nx">toLowerCase</span><span class="p">(),</span> <span class="sr">/[^a-z0-9 ]/i</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">))</span></pre></div>             </td>           </tr>                               <tr id="section-13">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-13">&#182;</a>               </div>               <p>Public: This function partially simulates the Ruby's String gsub method.</p>
+
+<ul>
+<li><code>source</code> - the source string</li>
+<li><code>pattern</code> - the Regex pattern</li>
+<li><code>replacement</code> - the replacement text</li>
+</ul>
+
+<p>Example:</p>
+
+<pre><code>gsub("-abc-abc-", /[^a-z0-9 ]/i, '')  # returns "abcabc"
+gsub("-abc-abc-", /[^a-z0-9 ]/i, '*') # returns "*abc*abc*"
+</code></pre>
+
+<p>Returns the modified string.</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">gsub: </span><span class="nf">(source, pattern, replacement) -&gt;</span>
+    <span class="nx">unless</span> <span class="nx">pattern</span><span class="o">?</span> <span class="o">and</span> <span class="nx">replacement</span><span class="o">?</span>
+      <span class="k">return</span> <span class="nx">source</span>
+
+    <span class="nv">result = </span><span class="s1">&#39;&#39;</span>
+    <span class="k">while</span> <span class="nx">source</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">0</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nv">match = </span><span class="nx">source</span><span class="p">.</span><span class="nx">match</span><span class="p">(</span><span class="nx">pattern</span><span class="p">))</span>
+        <span class="nx">result</span> <span class="o">+=</span> <span class="nx">source</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nx">match</span><span class="p">.</span><span class="nx">index</span><span class="p">)</span>
+        <span class="nx">result</span> <span class="o">+=</span> <span class="nx">replacement</span>
+        <span class="nv">source  = </span><span class="nx">source</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="nx">match</span><span class="p">.</span><span class="nx">index</span> <span class="o">+</span> <span class="nx">match</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nx">length</span><span class="p">)</span>
+      <span class="k">else</span>
+        <span class="nx">result</span> <span class="o">+=</span> <span class="nx">source</span>
+        <span class="nv">source = </span><span class="s1">&#39;&#39;</span>
+
+    <span class="nx">result</span></pre></div>             </td>           </tr>                               <tr id="section-14">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-14">&#182;</a>               </div>               <p>Public: Strip out leading and trailing whitespaces.</p>
+
+<ul>
+<li><code>source</code> - string to be stripped</li>
+</ul>
+
+<p>Returns a copy of str with leading and trailing whitespace removed.</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">strip: </span><span class="nf">(source) -&gt;</span>
+    <span class="nx">source</span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="sr">/^\s+/</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">).</span><span class="nx">replace</span><span class="p">(</span><span class="sr">/\s+$/</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+<span class="nv">connectToRedis = </span><span class="nf">(options) -&gt;</span>
+  <span class="nv">redis = </span><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;redis&#39;</span><span class="p">).</span><span class="nx">createClient</span> <span class="nx">options</span><span class="p">.</span><span class="nx">port</span><span class="p">,</span> <span class="nx">options</span><span class="p">.</span><span class="nx">host</span>
+  <span class="nx">redis</span><span class="p">.</span><span class="nx">auth</span> <span class="nx">options</span><span class="p">.</span><span class="nx">password</span> <span class="k">if</span> <span class="nx">options</span><span class="p">.</span><span class="nx">password</span><span class="o">?</span>
+  <span class="nx">redis</span>
+
+<span class="nv">exports.Helper = </span><span class="k">new</span> <span class="nx">Helper</span>
+<span class="nv">exports.Connection = </span><span class="nx">Connection</span>
+
+</pre></div>             </td>           </tr>                </tbody>     </table>   </div> </body> </html> 

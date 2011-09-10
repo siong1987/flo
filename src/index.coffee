@@ -4,15 +4,16 @@ async = require "async"
 # Sets up a new Resque Connection.
 #
 # options - Optional Hash of options.
-#           redis       - An existing redis connection to use.
-#           host        - String Redis host.  (Default: Redis' default)
-#           port        - Integer Redis port.  (Default: Redis' default)
-#           password    - String Redis password.
-#           namespace   - String namespace prefix for Redis keys.
-#                         (Default: flo).
-#           mincomplete - Minimum completion of keys required for auto completion.
-#                         (Default: 1)
-#           database    - Integer of the Redis database to select.
+#
+# * `redis`       - An existing redis connection to use.
+# * `host`        - String Redis host.  (Default: Redis' default)
+# * `port`        - Integer Redis port.  (Default: Redis' default)
+# * `password`    - String Redis password.
+# * `namespace`   - String namespace prefix for Redis keys.
+#               (Default: flo).
+# * `mincomplete` - Minimum completion of keys required for auto completion.
+#               (Default: 1)
+# * `database`    - Integer of the Redis database to select.
 #
 # Returns a Connection instance.
 exports.connect = (options) ->
@@ -29,7 +30,7 @@ class Connection
 
   # Public: Get all prefixes for a phrase
   #
-  # phrase - the phrase that needs to be parsed into many prefixes
+  # * `phrase` - the phrase that needs to be parsed into many prefixes
   #
   # Returns an array of unique prefixes for the phrase
   prefixes_for_phrase: (phrase) ->
@@ -46,10 +47,10 @@ class Connection
 
   # Public: Search for a term
   #
-  # types - types of term that you are looking for (Array of Strina)
-  # phrase - the phrase or phrases you want to be autocompleted
-  # limit - the count of the number you want to return (optional, default: 5)
-  # callback(err, result) - err is the error and results is the results
+  # * `types` - types of term that you are looking for (Array of Strina)
+  # * `phrase` - the phrase or phrases you want to be autocompleted
+  # * `limit` - the count of the number you want to return (optional, default: 5)
+  # * `callback(err, result)` - err is the error and results is the results
   search_term: (types, phrase, args...) ->
     if typeof(args[0]) == 'number'
       limit = args[0]
@@ -98,12 +99,12 @@ class Connection
 
   # Public: Add a new term
   #
-  # type - the type of data of this term (String)
-  # id - unique identifier(within the specific type)
-  # term - the phrase you wish to provide completions for
-  # score - user specified ranking metric (redis will order things lexicographically for items with the same score)
-  # data - container for metadata that you would like to return when this item is matched (optional)
-  # callback - callback to be run (optional)
+  # * `type`     - the type of data of this term (String)
+  # * `id`       - unique identifier(within the specific type)
+  # * `term`     - the phrase you wish to provide completions for
+  # * `score`    - user specified ranking metric (redis will order things lexicographically for items with the same score)
+  # * `data`     - container for metadata that you would like to return when this item is matched (optional)
+  # * `callback` - callback to be run (optional)
   #
   # Returns nothing.
   add_term: (type, id, term, score, data, callback) ->
@@ -141,8 +142,8 @@ class Connection
 
   # Builds a namespaced Redis key with the given arguments.
   #
-  # type - Type of the param
-  # args - Array of Strings.
+  # * `type` - Type of the param
+  # * `args` - Array of Strings.
   #
   # Returns an assembled String key.
   key: (args...) ->
@@ -152,7 +153,7 @@ class Connection
 class Helper
   # Public: Normalize a term to remove all other characters than a-z and 0-9.
   #
-  # term - the term to be normalized
+  # * `term` - the term to be normalized
   #
   # Returns a normalized term.
   normalize: (term) ->
@@ -160,11 +161,12 @@ class Helper
 
   # Public: This function partially simulates the Ruby's String gsub method.
   #
-  # source - the source string
-  # pattern - the Regex pattern
-  # replacement - the replacement text
+  # * `source` - the source string
+  # * `pattern` - the Regex pattern
+  # * `replacement` - the replacement text
   #
   # Example:
+  #
   #     gsub("-abc-abc-", /[^a-z0-9 ]/i, '')  # returns "abcabc"
   #     gsub("-abc-abc-", /[^a-z0-9 ]/i, '*') # returns "*abc*abc*"
   #
@@ -187,7 +189,7 @@ class Helper
 
   # Public: Strip out leading and trailing whitespaces.
   #
-  # source - string to be stripped
+  # * `source` - string to be stripped
   #
   # Returns a copy of str with leading and trailing whitespace removed.
   strip: (source) ->

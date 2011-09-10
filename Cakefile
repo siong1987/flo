@@ -17,3 +17,9 @@ watchJS = ->
 # Tasks
 task 'watch', 'Watches all Coffeescript(JS) and Stylus(CSS) files', ->
   watchJS()
+
+task 'docs', 'Create documentation using Docco', ->
+  docco = exec """
+    docco src/index.coffee
+  """
+  printOutput(docco)
