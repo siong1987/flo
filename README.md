@@ -50,13 +50,27 @@ Public: Search for a term
 `results` will be returned in json format like:
 
     {
-      term: "search term"
-      type1: [
+      term: "rice"
+      chinese: [
           {
             id: 3,
-            term: "real term",
+            term: "mongolian fried rice",
             score: 10,
-            data: {}
+            data: {
+              name: "Gonghu Chinese Restaurant",
+              address: "304, University Avenue, Palo Alto"
+            }
+          }
+        ],
+       indian: [
+          {
+            id: 1,
+            term: "Briyani Chicken Rice",
+            score: 5,
+            data: {
+              name: "Bombay Grill",
+              address: "100 Green St, Urbana"
+            }
           }
         ]
     }
