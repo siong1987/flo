@@ -25,7 +25,7 @@ Returns a Connection instance.
 
 There are two main command that you can use `add_term` and `search_term`:
 
-`add_term`:
+`add_term(type, id, term, score, data, callback)`:
 
 Public: Add a new term
 

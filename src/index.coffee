@@ -109,7 +109,13 @@ class Connection
   # * `callback` - callback to be run (optional)
   #
   # Returns nothing.
-  add_term: (type, id, term, score, data, callback) ->
+  add_term: (type, id, term, score, args...) ->
+    if typeof(args[0]) != 'function'
+      data = args[0]
+      callback = args[args.length-1]
+    else if typeof(args[0]) == 'function'
+      callback = args[0]
+
     # store the data in parallel
     async.parallel([
       ((callb) =>

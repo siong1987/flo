@@ -82,7 +82,15 @@
         return callback(err, results);
       });
     };
-    Connection.prototype.add_term = function(type, id, term, score, data, callback) {
+    Connection.prototype.add_term = function() {
+      var args, callback, data, id, score, term, type;
+      type = arguments[0], id = arguments[1], term = arguments[2], score = arguments[3], args = 5 <= arguments.length ? __slice.call(arguments, 4) : [];
+      if (typeof args[0] !== 'function') {
+        data = args[0];
+        callback = args[args.length - 1];
+      } else if (typeof args[0] === 'function') {
+        callback = args[0];
+      }
       return async.parallel([
         (__bind(function(callb) {
           return this.redis.hset(this.key(type, "data"), id, JSON.stringify({
