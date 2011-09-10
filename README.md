@@ -1,6 +1,6 @@
 flo
 ===
-**flo** is a [redis](http://redis.io) powered [node.js](http://nodejs.org) autocompleter inspired by [soulmate](https://github.com/seatgeek/soulmate).
+**flo** is a [redis](http://redis.io) powered [node.js](http://nodejs.org) autocompleter inspired by [soulmate](https://github.com/seatgeek/soulmate). You can use this anywhere you want since this is just a module. If you look into the examples folder, I have provided an example on how to get it work with [express](http://expressjs.com/).
 
 Documentations
 ==============
