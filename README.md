@@ -23,7 +23,7 @@ options - Optional Hash of options.
 
 Returns a Connection instance.
 
-There are two main command that you can use `add_term` and `search_term`:
+There are two main commands that you can use `add_term` and `search_term`:
 
 `add_term(type, id, term, score, data, callback)`:
 
