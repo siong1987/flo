@@ -49,7 +49,7 @@ class Connection
 
   # Public: Search for a term
   #
-  # * `types` - types of term that you are looking for (Array of Strina)
+  # * `types` - types of term that you are looking for (Array of String)
   # * `phrase` - the phrase or phrases you want to be autocompleted
   # * `limit` - the count of the number you want to return (optional, default: 5)
   # * `callback(err, result)` - err is the error and results is the results
