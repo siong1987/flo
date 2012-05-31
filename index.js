@@ -54,29 +54,47 @@
         words = _.uniq(_this.helper.normalize(phrase).split(' ')).sort();
         cachekey = _this.key(type, "cache", words.join('|'));
         return async.waterfall([
-          (function(cb) {
-            return _this.redis.exists(cachekey, cb);
-          }), (function(exists, cb) {
-            var interkeys, _ref;
+          (function(next) {
+            return _this.redis.exists(cachekey, next);
+          }), (function(exists, next) {
+            var interkeys, w, _ref;
             if (!exists) {
-              interkeys = _.map(words, function(w) {
-                return _this.key(type, "index", w);
-              });
+              interkeys = (function() {
+                var _i, _len, _results;
+                _results = [];
+                for (_i = 0, _len = words.length; _i < _len; _i++) {
+                  w = words[_i];
+                  _results.push(this.key(type, "index", w));
+                }
+                return _results;
+              }).call(_this);
               return (_ref = _this.redis).zinterstore.apply(_ref, [cachekey, interkeys.length].concat(__slice.call(interkeys), [function(err, count) {
                 return _this.redis.expire(cachekey, 10 * 60, function() {
-                  return cb();
+                  return next();
                 });
               }]));
             } else {
-              return cb();
+              return next();
             }
-          }), (function(cb) {
+          }), (function(next) {
             return _this.redis.zrevrange(cachekey, 0, limit - 1, function(err, ids) {
               var _ref;
               if (ids.length > 0) {
-                return (_ref = _this.redis).hmget.apply(_ref, [_this.key(type, "data")].concat(__slice.call(ids), [cb]));
+                return (_ref = _this.redis).hmget.apply(_ref, [_this.key(type, "data")].concat(__slice.call(ids), [function(err, matches) {
+                  var decoded_results, match;
+                  decoded_results = (function() {
+                    var _i, _len, _results;
+                    _results = [];
+                    for (_i = 0, _len = matches.length; _i < _len; _i++) {
+                      match = matches[_i];
+                      _results.push(JSON.parse(match));
+                    }
+                    return _results;
+                  })();
+                  return next(err, decoded_results);
+                }]));
               } else {
-                return cb(null, []);
+                return next(null, []);
               }
             });
           })

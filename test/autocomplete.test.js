@@ -27,7 +27,7 @@
     'test key': function() {
       var result;
       result = flo.key("fun", "abc");
-      return assert.equal("flo:fun:abc", result);
+      return assert.equal("flo-test:fun:abc", result);
     },
     'test add_term': function() {
       var term, term_data, term_id, term_score, term_type;
@@ -70,18 +70,25 @@
       return async.series([
         (function(callback) {
           return async.forEach(venues, (function(venue, cb) {
-            return flo.add_term("venues", venue.id, venue.term, venue.score, venue.data, function() {
-              return cb();
-            });
+            return flo.add_term("venues", venue.id, venue.term, venue.score, venue.data, cb);
           }), callback);
         }), (function(callback) {
           return flo.search_term(["venues", "food"], "stadium", function(err, data) {
+            assert.isDefined(data.results.venues);
             assert.equal(3, data.results.venues.length);
             return callback();
           });
         }), (function(callback) {
           return flo.search_term(["venues"], "stadium", 1, function(err, data) {
+            assert.isDefined(data.results.venues);
             assert.equal(1, data.results.venues.length);
+            return callback();
+          });
+        }), (function(callback) {
+          return flo.search_term(["venues"], "stadium", 1, function(err, data) {
+            assert.type(data.results.venues[0], "object", "Venue result is not an object");
+            assert.type(data.results.venues[0].data, "object", "Venue data is not an object");
+            assert.equal(data.results.venues[0].data.subtitle, venues[1].data.subtitle);
             return callback();
           });
         })
