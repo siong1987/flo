@@ -94,8 +94,9 @@ class Connection
         data[type] = results
         callb(err, data)
       )
-    , (err, results) ->
-      results = _.extend results...
+    , (err, termsets) ->
+      results = {}
+      results.results = _.extend termsets...
       results.term = phrase
       callback(err, results)
 

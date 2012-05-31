@@ -1,7 +1,8 @@
-flo = require('../index').connect()
-async = require 'async'
-_ = require 'underscore'
+_      = require 'underscore'
+async  = require 'async'
 assert = require 'assert'
+flo = require('../index').connect
+  namespace: "flo-test"
 
 module.exports =
   'test prefixes_for_phrase': () ->
@@ -66,15 +67,15 @@ module.exports =
         ), callback),
       ((callback) ->
         flo.search_term ["venues", "food"], "stadium",
-        (err, results) ->
-          assert.equal(3, results.venues.length)
+        (err, data) ->
+          assert.equal(3, data.results.venues.length)
           callback()
       ),
       ((callback) ->
         # set limit to 1
         flo.search_term ["venues"], "stadium", 1,
-        (err, results) ->
-          assert.equal(1, results.venues.length)
+        (err, data) ->
+          assert.equal(1, data.results.venues.length)
           callback()
       )
     ], () ->
