@@ -68,34 +68,35 @@ class Connection
       # for caching purpose
       cachekey = @key(type, "cache", words.join('|'))
       async.waterfall([
-        ((cb) =>
-          @redis.exists cachekey, cb
+        ((next) =>
+          @redis.exists cachekey, next
         ),
-        ((exists, cb) =>
+        ((exists, next) =>
           if !exists
-            interkeys = _.map(words, (w) =>
-              @key(type, "index", w)
-            )
+            interkeys = (@key(type, "index", w) for w in words)
             @redis.zinterstore cachekey, interkeys.length, interkeys..., (err, count) =>
-              @redis.expire cachekey, 10 * 60, -> # expire after 10 minutes
-                cb()
+              # expire after 10 minutes
+              @redis.expire cachekey, 10 * 60, -> next()
           else
-            cb()
+            next()
         ),
-        ((cb) =>
+        ((next) =>
           @redis.zrevrange cachekey, 0, (limit - 1), (err, ids) =>
             if ids.length > 0
-              @redis.hmget @key(type, "data"), ids..., cb
+              @redis.hmget @key(type, "data"), ids..., (err, matches) ->
+                decoded_results = (JSON.parse match for match in matches)
+                next(err, decoded_results)
             else
-              cb(null, [])
+              next(null, [])
         )
       ], (err, results) ->
         data = {}
         data[type] = results
         callb(err, data)
       )
-    , (err, results) ->
-      results = _.extend results...
+    , (err, termsets) ->
+      results = {}
+      results.results = _.extend termsets...
       results.term = phrase
       callback(err, results)
 

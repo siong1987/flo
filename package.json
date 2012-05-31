@@ -4,14 +4,14 @@
   "version": "0.1.0",
   "author": "Teng Siong Ong <siong1987@gmail.com>",
   "dependencies": {
-    "redis": ">= 0.6.7",
+    "redis": ">= 0.7.2",
     "async": "0.1.9",
     "underscore": ">= 1.1.7"
   },
   "devDependencies": {
-    "expresso": "0.8.1",
-    "should": "0.2.1",
-    "express": "2.4.3"
+    "expresso": "~0.9.2",
+    "should": "~0.6.3",
+    "express": "~2.5.8"
   },
   "keywords": ["autocompleter", "soulmate", "redis", "flo"],
   "repository": "git://github.com/FLOChip/flo",
