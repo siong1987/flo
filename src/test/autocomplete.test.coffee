@@ -86,16 +86,31 @@ module.exports =
     term_id = 2
     term = "Burger"
     term_score = 10
+    term_data =
+      temp:"data"
+
+    all_data =
+      id:term_id
+      term:term
+      score:term_score
+      data:term_data
 
     async.series([
       ((callback) ->
-        flo.add_term term_type, term_id, term, term_score, callback
+        flo.add_term term_type, term_id, term, term_score, term_data, callback
       ),
       ((callback) ->
-        flo.get_id term_type, term, 
+        flo.get_id term_type, term,
           (err, id) ->
             assert.isNull err
             assert.eql id, term_id
+            callback()
+      ),
+      ((callback) ->
+        flo.get_data term_type, term_id,
+          (err, data) ->
+            assert.isNull err
+            assert.eql data, all_data
             callback()
       ),
       ((callback) ->
@@ -103,11 +118,11 @@ module.exports =
       ),
       ((callback) ->
         flo.search_term [term_type], term,
-          (err, results) ->
+          (err, result) ->
             eql =
               term: term
             eql[term_type] = []
-            assert.eql results, eql
+            assert.eql result, eql
       )
     ], () ->
       flo.end()

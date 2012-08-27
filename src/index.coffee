@@ -175,7 +175,7 @@ class Connection
         )
 
 
-  # Public: Returns the IDs for a term (can be multiple)
+  # Public: Returns the ID for a term
   #
   # * 'type'    - the type of data for this term
   # * 'term'    - the term to find the unique identifiers for
@@ -185,6 +185,20 @@ class Connection
   get_id: (type, term, callback) ->
     @redis.get @key(type, term), callback
 
+
+  # Public: Returns the data for an ID
+  #
+  # * 'type'    - the type of data for this term
+  # * `id`       - unique identifier (within the specific type)
+  # * 'callback(err, result)' - result is the data
+  #
+  # Returns nothing.
+  get_data: (type, id, callback) ->
+    @redis.hget @key(type, "data"), id,
+      (err, result) ->
+        if err
+          return callback(err)
+        return callback(null, JSON.parse(result))
 
   # Public: Get the redis instance
   #

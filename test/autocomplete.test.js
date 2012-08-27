@@ -88,14 +88,23 @@
       });
     },
     'test remove_term': function() {
-      var term, term_id, term_score, term_type;
+      var all_data, term, term_data, term_id, term_score, term_type;
       term_type = "foods";
       term_id = 2;
       term = "Burger";
       term_score = 10;
+      term_data = {
+        temp: "data"
+      };
+      all_data = {
+        id: term_id,
+        term: term,
+        score: term_score,
+        data: term_data
+      };
       return async.series([
         (function(callback) {
-          return flo.add_term(term_type, term_id, term, term_score, callback);
+          return flo.add_term(term_type, term_id, term, term_score, term_data, callback);
         }), (function(callback) {
           return flo.get_id(term_type, term, function(err, id) {
             assert.isNull(err);
@@ -103,15 +112,21 @@
             return callback();
           });
         }), (function(callback) {
+          return flo.get_data(term_type, term_id, function(err, data) {
+            assert.isNull(err);
+            assert.eql(data, all_data);
+            return callback();
+          });
+        }), (function(callback) {
           return flo.remove_term(term_type, term_id, callback);
         }), (function(callback) {
-          return flo.search_term([term_type], term, function(err, results) {
+          return flo.search_term([term_type], term, function(err, result) {
             var eql;
             eql = {
               term: term
             };
             eql[term_type] = [];
-            return assert.eql(results, eql);
+            return assert.eql(result, eql);
           });
         })
       ], function() {

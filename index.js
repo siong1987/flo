@@ -165,6 +165,15 @@
       return this.redis.get(this.key(type, term), callback);
     };
 
+    Connection.prototype.get_data = function(type, id, callback) {
+      return this.redis.hget(this.key(type, "data"), id, function(err, result) {
+        if (err) {
+          return callback(err);
+        }
+        return callback(null, JSON.parse(result));
+      });
+    };
+
     Connection.prototype.redis = function() {
       return this.redis;
     };
