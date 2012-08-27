@@ -81,3 +81,27 @@ module.exports =
       flo.end()
     )
 
+  'test remove_term': () ->
+    term_type = "foods"
+    term_id = 2
+    term = "Burger"
+    term_score = 10
+
+    async.series([
+      ((callback) ->
+        flo.add_term term_type, term_id, term, term_score, callback
+      ),
+      ((callback) ->
+        flo.remove_term term_type, term_id, callback
+      ),
+      ((callback) ->
+        flo.search_term [term_type], term,
+        (err, results) ->
+          eql =
+            term: term
+          eql[term_type] = []
+          assert.eql results, eql
+      )
+    ], () ->
+      flo.end()
+    )

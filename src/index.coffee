@@ -136,6 +136,38 @@ class Connection
       callback() if callback?
     )
 
+  # Public: Remove a term
+  #
+  # * `type`     - the type of data of this term (String)
+  # * `id`       - unique identifier (within the specific type)
+  # * `callback` - callback to be run (optional)
+  #
+  # Returns nothing.
+  remove_term: (type, id, callback) ->
+    #get the term
+    @redis.hget @key(type, "data"), id,
+      (err, result)=>
+        if err
+          return err
+        term = JSON.parse(result).term
+        # remove 
+        async.parallel([
+          ((callb)=>
+            @redis.hdel @key(type, "data"), id,
+              -> callb()
+          ),
+          ((callb)=>
+            async.forEach @prefixes_for_phrase(term),
+            ((w, cb) =>
+              @redis.zrem @key(type, "index", w), id,
+              -> cb()
+            ),
+            -> callb()
+          )
+        ], ->
+          callback() if callback?
+        )
+
   # Public: Get the redis instance
   #
   # Returns the redis instance.
