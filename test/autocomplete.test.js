@@ -97,6 +97,12 @@
         (function(callback) {
           return flo.add_term(term_type, term_id, term, term_score, callback);
         }), (function(callback) {
+          return flo.get_id(term_type, term, function(err, id) {
+            assert.isNull(err);
+            assert.eql(id, term_id);
+            return callback();
+          });
+        }), (function(callback) {
           return flo.remove_term(term_type, term_id, callback);
         }), (function(callback) {
           return flo.search_term([term_type], term, function(err, results) {

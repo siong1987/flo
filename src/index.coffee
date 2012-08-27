@@ -131,6 +131,11 @@ class Connection
           -> cb()
         ), ->
           callb()
+      ),
+      ((callb) =>
+        # store the id
+        @redis.set @key(type, term), id,
+        -> callb()
       )
     ], ->
       callback() if callback?
@@ -140,33 +145,46 @@ class Connection
   #
   # * `type`     - the type of data of this term (String)
   # * `id`       - unique identifier (within the specific type)
-  # * `callback` - callback to be run (optional)
+  # * `callback(err)` - callback to be run (optional)
   #
   # Returns nothing.
   remove_term: (type, id, callback) ->
     #get the term
     @redis.hget @key(type, "data"), id,
-      (err, result)=>
+      (err, result) =>
         if err
-          return err
+          return callback(err)
         term = JSON.parse(result).term
         # remove 
         async.parallel([
-          ((callb)=>
-            @redis.hdel @key(type, "data"), id,
-              -> callb()
+          ((callb) =>
+            @redis.hdel @key(type, "data"), id, callb
           ),
-          ((callb)=>
+          ((callb) =>
             async.forEach @prefixes_for_phrase(term),
             ((w, cb) =>
               @redis.zrem @key(type, "index", w), id,
               -> cb()
-            ),
-            -> callb()
+            ), callb
+          ),
+          ((callb) =>
+            @redis.del @key(type, term), callb
           )
         ], ->
           callback() if callback?
         )
+
+
+  # Public: Returns the IDs for a term (can be multiple)
+  #
+  # * 'type'    - the type of data for this term
+  # * 'term'    - the term to find the unique identifiers for
+  # * 'callback(err, result)' - result is the ID for the term
+  #
+  # Returns nothing.
+  get_id: (type, term, callback) ->
+    @redis.get @key(type, term), callback
+
 
   # Public: Get the redis instance
   #

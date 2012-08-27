@@ -92,15 +92,22 @@ module.exports =
         flo.add_term term_type, term_id, term, term_score, callback
       ),
       ((callback) ->
+        flo.get_id term_type, term, 
+          (err, id) ->
+            assert.isNull err
+            assert.eql id, term_id
+            callback()
+      ),
+      ((callback) ->
         flo.remove_term term_type, term_id, callback
       ),
       ((callback) ->
         flo.search_term [term_type], term,
-        (err, results) ->
-          eql =
-            term: term
-          eql[term_type] = []
-          assert.eql results, eql
+          (err, results) ->
+            eql =
+              term: term
+            eql[term_type] = []
+            assert.eql results, eql
       )
     ], () ->
       flo.end()

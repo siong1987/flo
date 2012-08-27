@@ -121,6 +121,10 @@
           }), function() {
             return callb();
           });
+        }), (function(callb) {
+          return _this.redis.set(_this.key(type, term), id, function() {
+            return callb();
+          });
         })
       ], function() {
         if (callback != null) {
@@ -134,22 +138,20 @@
       return this.redis.hget(this.key(type, "data"), id, function(err, result) {
         var term;
         if (err) {
-          return err;
+          return callback(err);
         }
         term = JSON.parse(result).term;
         return async.parallel([
           (function(callb) {
-            return _this.redis.hdel(_this.key(type, "data"), id, function() {
-              return callb();
-            });
+            return _this.redis.hdel(_this.key(type, "data"), id, callb);
           }), (function(callb) {
             return async.forEach(_this.prefixes_for_phrase(term), (function(w, cb) {
               return _this.redis.zrem(_this.key(type, "index", w), id, function() {
                 return cb();
               });
-            }), function() {
-              return callb();
-            });
+            }), callb);
+          }), (function(callb) {
+            return _this.redis.del(_this.key(type, term), callb);
           })
         ], function() {
           if (callback != null) {
@@ -157,6 +159,10 @@
           }
         });
       });
+    };
+
+    Connection.prototype.get_id = function(type, term, callback) {
+      return this.redis.get(this.key(type, term), callback);
     };
 
     Connection.prototype.redis = function() {
