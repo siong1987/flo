@@ -154,6 +154,9 @@ class Connection
       (err, result) =>
         if err
           return callback(err)
+        if result == null
+          return callback(new Error("Invalid term id"))
+
         term = JSON.parse(result).term
         # remove 
         async.parallel([
@@ -176,22 +179,22 @@ class Connection
 
 
   # Public: Returns the ID for a term
-  #
+  
   # * 'type'    - the type of data for this term
   # * 'term'    - the term to find the unique identifiers for
   # * 'callback(err, result)' - result is the ID for the term
-  #
+  
   # Returns nothing.
   get_id: (type, term, callback) ->
     @redis.get @key(type, @helper.normalize(term)), callback
 
 
   # Public: Returns the data for an ID
-  #
+  
   # * 'type'    - the type of data for this term
   # * `id`       - unique identifier (within the specific type)
   # * 'callback(err, result)' - result is the data
-  #
+  
   # Returns nothing.
   get_data: (type, id, callback) ->
     @redis.hget @key(type, "data"), id,

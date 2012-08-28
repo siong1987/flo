@@ -140,6 +140,9 @@
         if (err) {
           return callback(err);
         }
+        if (result === null) {
+          return callback(new Error("Invalid term id"));
+        }
         term = JSON.parse(result).term;
         return async.parallel([
           (function(callb) {
