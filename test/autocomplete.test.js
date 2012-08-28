@@ -103,30 +103,36 @@
         data: term_data
       };
       return async.series([
-        (function(callback) {
-          return flo.add_term(term_type, term_id, term, term_score, term_data, callback);
-        }), (function(callback) {
+        (function(next) {
+          return flo.add_term(term_type, term_id, term, term_score, term_data, next);
+        }), (function(next) {
           return flo.get_id(term_type, term, function(err, id) {
             assert.isNull(err);
             assert.eql(id, term_id);
-            return callback();
+            return next();
           });
-        }), (function(callback) {
+        }), (function(next) {
           return flo.get_data(term_type, term_id, function(err, data) {
             assert.isNull(err);
             assert.eql(data, all_data);
-            return callback();
+            return next();
           });
-        }), (function(callback) {
-          return flo.remove_term(term_type, term_id, callback);
-        }), (function(callback) {
+        }), (function(next) {
+          return flo.remove_term(term_type, term_id, next);
+        }), (function(next) {
+          return flo.remove_term(term_type, term_id, function(err) {
+            assert.isNotNull(err);
+            return next();
+          });
+        }), (function(next) {
           return flo.search_term([term_type], term, function(err, result) {
             var eql;
             eql = {
               term: term
             };
             eql[term_type] = [];
-            return assert.eql(result, eql);
+            assert.eql(result, eql);
+            return next();
           });
         })
       ], function() {

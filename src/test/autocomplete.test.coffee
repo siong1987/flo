@@ -96,33 +96,41 @@ module.exports =
       data:term_data
 
     async.series([
-      ((callback) ->
-        flo.add_term term_type, term_id, term, term_score, term_data, callback
+      ((next) ->
+        flo.add_term term_type, term_id, term, term_score, term_data, next
       ),
-      ((callback) ->
+      ((next) ->
         flo.get_id term_type, term,
           (err, id) ->
             assert.isNull err
             assert.eql id, term_id
-            callback()
+            next()
       ),
-      ((callback) ->
+      ((next) ->
         flo.get_data term_type, term_id,
           (err, data) ->
             assert.isNull err
             assert.eql data, all_data
-            callback()
+            next()
       ),
-      ((callback) ->
-        flo.remove_term term_type, term_id, callback
+      ((next) ->
+        flo.remove_term term_type, term_id, next
       ),
-      ((callback) ->
+      ((next) ->
+        # second call should return an error
+        flo.remove_term term_type, term_id,
+        (err) ->
+          assert.isNotNull(err)
+          next()
+      ),
+      ((next) ->
         flo.search_term [term_type], term,
           (err, result) ->
             eql =
               term: term
             eql[term_type] = []
             assert.eql result, eql
+            next()
       )
     ], () ->
       flo.end()
