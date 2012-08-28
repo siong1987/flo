@@ -49,7 +49,11 @@ Public: Search for a term
 * `limit` - the count of the number you want to return (optional, default: 5)
 * `callback(err, result)` - err is the error and results is the results
 
-`result` will be returned in json format like:
+This call:
+
+'search_term(["chinese", "indian"], "rice", 1, cb);'
+
+will return a result in json format like:
 
     {
       term: "rice"
@@ -77,7 +81,33 @@ Public: Search for a term
         ]
     }
 
-For more information, you can read it [here](http://flochip.github.com/flo/docs/).
+'remove_term(type, id, callback)'
+
+Public: Remove a term
+
+* `type`     - the type of data of this term (String)
+* `id`       - unique identifier(within the specific type)
+* `callback` - callback to be run (optional)
+
+Returns nothing.
+
+'get_id (type, term, callback)'
+
+Public: Returns the ID for a term
+
+* 'type'    - the type of data for this term
+* 'term'    - the term to find the unique identifiers for
+* 'callback(err, result)' - result is the ID for the term
+
+'get_data(type, id, callback)'
+
+Public: Returns the data for an ID
+
+* 'type'    - the type of data for this term
+* `id`       - unique identifier (within the specific type)
+* 'callback(err, result)' - result is the data
+
+For more information, you can read it [here](https://github.com/siong1987/flo/tree/master/docs).
 
 ## Tests
 To run tests, first make sure your local redis is running, then:
@@ -85,7 +115,7 @@ To run tests, first make sure your local redis is running, then:
     ./node_modules/expresso/bin/expresso test/*.test.js
 
 ### License
-[MIT License](https://github.com/FLOChip/flo/blob/master/LICENSE)
+[MIT License](https://github.com/siong1987/flo/blob/master/LICENSE)
 
 ---
 ### Author
