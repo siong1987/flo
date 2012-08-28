@@ -131,10 +131,77 @@ class Connection
           -> cb()
         ), ->
           callb()
+      ),
+      ((callb) =>
+        # store the id
+        @redis.set @key(type, @helper.normalize(term)), id,
+        -> callb()
       )
     ], ->
       callback() if callback?
     )
+
+  # Public: Remove a term
+  #
+  # * `type`     - the type of data of this term (String)
+  # * `id`       - unique identifier (within the specific type)
+  # * `callback(err)` - callback to be run (optional)
+  #
+  # Returns nothing.
+  remove_term: (type, id, callback) ->
+    #get the term
+    @redis.hget @key(type, "data"), id,
+      (err, result) =>
+        if err
+          return callback(err)
+        if result == null
+          return callback(new Error("Invalid term id"))
+
+        term = JSON.parse(result).term
+        # remove 
+        async.parallel([
+          ((callb) =>
+            @redis.hdel @key(type, "data"), id, callb
+          ),
+          ((callb) =>
+            async.forEach @prefixes_for_phrase(term),
+            ((w, cb) =>
+              @redis.zrem @key(type, "index", w), id,
+              -> cb()
+            ), callb
+          ),
+          ((callb) =>
+            @redis.del @key(type, @helper.normalize(term)), callb
+          )
+        ], ->
+          callback() if callback?
+        )
+
+
+  # Public: Returns the ID for a term
+  
+  # * 'type'    - the type of data for this term
+  # * 'term'    - the term to find the unique identifiers for
+  # * 'callback(err, result)' - result is the ID for the term
+  
+  # Returns nothing.
+  get_id: (type, term, callback) ->
+    @redis.get @key(type, @helper.normalize(term)), callback
+
+
+  # Public: Returns the data for an ID
+  
+  # * 'type'    - the type of data for this term
+  # * `id`       - unique identifier (within the specific type)
+  # * 'callback(err, result)' - result is the data
+  
+  # Returns nothing.
+  get_data: (type, id, callback) ->
+    @redis.hget @key(type, "data"), id,
+      (err, result) ->
+        if err
+          return callback(err)
+        return callback(null, JSON.parse(result))
 
   # Public: Get the redis instance
   #

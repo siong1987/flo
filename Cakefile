@@ -14,6 +14,10 @@ watchJS = ->
   coffee = exec 'coffee -cw -o ./ src/'
   printOutput(coffee)
 
+runTests = ->
+  expresso = exec 'expresso -b test/*.test.js'
+  printOutput(expresso)
+
 # Tasks
 task 'watch', 'Watches all Coffeescript(JS) and Stylus(CSS) files', ->
   watchJS()
@@ -23,3 +27,7 @@ task 'docs', 'Create documentation using Docco', ->
     docco src/index.coffee
   """
   printOutput(docco)
+
+task 'sbuild', 'Build task for Sublime Text', ->
+  watchJS()
+  # runTests()

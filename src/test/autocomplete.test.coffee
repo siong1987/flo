@@ -81,3 +81,57 @@ module.exports =
       flo.end()
     )
 
+  'test remove_term': () ->
+    term_type = "foods"
+    term_id = 2
+    term = "Burger"
+    term_score = 10
+    term_data =
+      temp:"data"
+
+    all_data =
+      id:term_id
+      term:term
+      score:term_score
+      data:term_data
+
+    async.series([
+      ((next) ->
+        flo.add_term term_type, term_id, term, term_score, term_data, next
+      ),
+      ((next) ->
+        flo.get_id term_type, term,
+          (err, id) ->
+            assert.isNull err
+            assert.eql id, term_id
+            next()
+      ),
+      ((next) ->
+        flo.get_data term_type, term_id,
+          (err, data) ->
+            assert.isNull err
+            assert.eql data, all_data
+            next()
+      ),
+      ((next) ->
+        flo.remove_term term_type, term_id, next
+      ),
+      ((next) ->
+        # second call should return an error
+        flo.remove_term term_type, term_id,
+        (err) ->
+          assert.isNotNull(err)
+          next()
+      ),
+      ((next) ->
+        flo.search_term [term_type], term,
+          (err, result) ->
+            eql =
+              term: term
+            eql[term_type] = []
+            assert.eql result, eql
+            next()
+      )
+    ], () ->
+      flo.end()
+    )
