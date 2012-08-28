@@ -122,7 +122,7 @@
             return callb();
           });
         }), (function(callb) {
-          return _this.redis.set(_this.key(type, term), id, function() {
+          return _this.redis.set(_this.key(type, _this.helper.normalize(term)), id, function() {
             return callb();
           });
         })
@@ -151,7 +151,7 @@
               });
             }), callb);
           }), (function(callb) {
-            return _this.redis.del(_this.key(type, term), callb);
+            return _this.redis.del(_this.key(type, _this.helper.normalize(term)), callb);
           })
         ], function() {
           if (callback != null) {
@@ -162,7 +162,7 @@
     };
 
     Connection.prototype.get_id = function(type, term, callback) {
-      return this.redis.get(this.key(type, term), callback);
+      return this.redis.get(this.key(type, this.helper.normalize(term)), callback);
     };
 
     Connection.prototype.get_data = function(type, id, callback) {

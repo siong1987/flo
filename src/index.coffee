@@ -134,7 +134,7 @@ class Connection
       ),
       ((callb) =>
         # store the id
-        @redis.set @key(type, term), id,
+        @redis.set @key(type, @helper.normalize(term)), id,
         -> callb()
       )
     ], ->
@@ -168,7 +168,7 @@ class Connection
             ), callb
           ),
           ((callb) =>
-            @redis.del @key(type, term), callb
+            @redis.del @key(type, @helper.normalize(term)), callb
           )
         ], ->
           callback() if callback?
@@ -183,7 +183,7 @@ class Connection
   #
   # Returns nothing.
   get_id: (type, term, callback) ->
-    @redis.get @key(type, term), callback
+    @redis.get @key(type, @helper.normalize(term)), callback
 
 
   # Public: Returns the data for an ID
