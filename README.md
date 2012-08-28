@@ -25,11 +25,12 @@ options - Optional Hash of options.
 
 Returns a Connection instance.
 
-There are two main commands that you can use `add_term` and `search_term`:
+These are the public functions:
+
+Add a new term
+--------------
 
 `add_term(type, id, term, score, data, callback)`:
-
-Public: Add a new term
 
 * `type`     - the type of data of this term (String)
 * `id`       - unique identifier(within the specific type)
@@ -40,9 +41,10 @@ Public: Add a new term
 
 Returns nothing.
 
-`search_term(types, phrase, limit, callback)`:
+Search for a term
+-----------------
 
-Public: Search for a term
+`search_term(types, phrase, limit, callback)`:
 
 * `types` - types of term that you are looking for (Array of String)
 * `phrase` - the phrase or phrases you want to be autocompleted
@@ -81,9 +83,10 @@ will return a result in json format like:
         ]
     }
 
-`remove_term(type, id, callback)`:
+Remove a term
+-------------
 
-Public: Remove a term
+`remove_term(type, id, callback)`:
 
 * `type`     - the type of data of this term (String)
 * `id`       - unique identifier(within the specific type)
@@ -91,17 +94,19 @@ Public: Remove a term
 
 Returns nothing.
 
-`get_id (type, term, callback)`:
+Get the ID for a term
+-------------------------
 
-Public: Returns the ID for a term
+`get_id (type, term, callback)`:
 
 * `type`    - the type of data for this term
 * `term`    - the term to find the unique identifiers for
 * `callback(err, result)` - result is the ID for the term
 
-`get_data(type, id, callback)`:
+Get the data for an ID
+-----------------------
 
-Public: Returns the data for an ID
+`get_data(type, id, callback)`:
 
 * `type`    - the type of data for this term
 * `id`       - unique identifier (within the specific type)
