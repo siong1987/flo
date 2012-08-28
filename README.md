@@ -51,7 +51,7 @@ Public: Search for a term
 
 This call:
 
-'search_term(["chinese", "indian"], "rice", 1, cb);'
+`search_term(["chinese", "indian"], "rice", 1, cb);`
 
 will return a result in json format like:
 
@@ -81,7 +81,7 @@ will return a result in json format like:
         ]
     }
 
-'remove_term(type, id, callback)'
+`remove_term(type, id, callback)`:
 
 Public: Remove a term
 
@@ -91,21 +91,21 @@ Public: Remove a term
 
 Returns nothing.
 
-'get_id (type, term, callback)'
+`get_id (type, term, callback)`:
 
 Public: Returns the ID for a term
 
-* 'type'    - the type of data for this term
-* 'term'    - the term to find the unique identifiers for
-* 'callback(err, result)' - result is the ID for the term
+* `type`    - the type of data for this term
+* `term`    - the term to find the unique identifiers for
+* `callback(err, result)` - result is the ID for the term
 
-'get_data(type, id, callback)'
+`get_data(type, id, callback)`:
 
 Public: Returns the data for an ID
 
-* 'type'    - the type of data for this term
+* `type`    - the type of data for this term
 * `id`       - unique identifier (within the specific type)
-* 'callback(err, result)' - result is the data
+* `callback(err, result)` - result is the data
 
 For more information, you can read it [here](https://github.com/siong1987/flo/tree/master/docs).
 
