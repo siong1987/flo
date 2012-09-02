@@ -25,11 +25,12 @@ options - Optional Hash of options.
 
 Returns a Connection instance.
 
-There are two main commands that you can use `add_term` and `search_term`:
+These are the public functions:
+
+Add a new term
+--------------
 
 `add_term(type, id, term, score, data, callback)`:
-
-Public: Add a new term
 
 * `type`     - the type of data of this term (String)
 * `id`       - unique identifier(within the specific type)
@@ -40,16 +41,21 @@ Public: Add a new term
 
 Returns nothing.
 
-`search_term(types, phrase, limit, callback)`:
+Search for a term
+-----------------
 
-Public: Search for a term
+`search_term(types, phrase, limit, callback)`:
 
 * `types` - types of term that you are looking for (Array of String)
 * `phrase` - the phrase or phrases you want to be autocompleted
 * `limit` - the count of the number you want to return (optional, default: 5)
 * `callback(err, result)` - err is the error and results is the results
 
-`result` will be returned in json format like:
+This call:
+
+`search_term(["chinese", "indian"], "rice", 1, cb);`
+
+will return a result in json format like:
 
     {
       term: "rice"
@@ -77,7 +83,36 @@ Public: Search for a term
         ]
     }
 
-For more information, you can read it [here](http://flochip.github.com/flo/docs/).
+Remove a term
+-------------
+
+`remove_term(type, id, callback)`:
+
+* `type`     - the type of data of this term (String)
+* `id`       - unique identifier(within the specific type)
+* `callback` - callback to be run (optional)
+
+Returns nothing.
+
+Get the ID for a term
+-------------------------
+
+`get_id (type, term, callback)`:
+
+* `type`    - the type of data for this term
+* `term`    - the term to find the unique identifiers for
+* `callback(err, result)` - result is the ID for the term
+
+Get the data for an ID
+-----------------------
+
+`get_data(type, id, callback)`:
+
+* `type`    - the type of data for this term
+* `id`       - unique identifier (within the specific type)
+* `callback(err, result)` - result is the data
+
+For more information, you can read it [here](https://github.com/siong1987/flo/tree/master/docs).
 
 ## Tests
 To run tests, first make sure your local redis is running, then:
@@ -85,7 +120,7 @@ To run tests, first make sure your local redis is running, then:
     ./node_modules/expresso/bin/expresso test/*.test.js
 
 ### License
-[MIT License](https://github.com/FLOChip/flo/blob/master/LICENSE)
+[MIT License](https://github.com/siong1987/flo/blob/master/LICENSE)
 
 ---
 ### Author
