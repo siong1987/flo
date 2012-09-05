@@ -77,13 +77,12 @@ module.exports =
           assert.equal(1, results.venues.length)
           callback()
       )
-    ], () ->
-      flo.end()
-    )
+    ])
 
   'test remove_term': () ->
     term_type = "foods"
     term_id = 2
+    term_id2 = 3
     term = "Burger"
     term_score = 10
     term_data =
@@ -100,10 +99,10 @@ module.exports =
         flo.add_term term_type, term_id, term, term_score, term_data, next
       ),
       ((next) ->
-        flo.get_id term_type, term,
-          (err, id) ->
+        flo.get_ids term_type, term,
+          (err, ids) ->
             assert.isNull err
-            assert.eql id, term_id
+            assert.eql ids, [term_id]
             next()
       ),
       ((next) ->
@@ -114,14 +113,35 @@ module.exports =
             next()
       ),
       ((next) ->
+        # add a duplicate with new id
+        flo.add_term term_type, term_id2, term, term_score, term_data, next
+      ),
+      ((next) ->
+        # check to see if we get both ids back
+        flo.get_ids term_type, term,
+          (err, ids) ->
+            assert.isNull err
+            assert.eql ids, [term_id, term_id2]
+            next()
+      ),
+      ((next) ->
         flo.remove_term term_type, term_id, next
+      ),
+      ((next) ->
+        flo.remove_term term_type, term_id2, next
       ),
       ((next) ->
         # second call should return an error
         flo.remove_term term_type, term_id,
-        (err) ->
-          assert.isNotNull(err)
-          next()
+          (err) ->
+            assert.isNotNull(err)
+            next()
+      ),
+      ((next) ->
+        flo.get_ids term_type, term,
+          (err, ids) ->
+            assert.eql ids, []
+            next()
       ),
       ((next) ->
         flo.search_term [term_type], term,
@@ -132,6 +152,6 @@ module.exports =
             assert.eql result, eql
             next()
       )
-    ], () ->
+    ], (err, results) ->
       flo.end()
     )

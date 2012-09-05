@@ -133,9 +133,22 @@ class Connection
           callb()
       ),
       ((callb) =>
-        # store the id
-        @redis.set @key(type, @helper.normalize(term)), id,
-        -> callb()
+        key = @key(type, @helper.normalize(term))
+        # do we already have this term?
+        @redis.get key, (err, result) =>
+          if (err)
+            return callb(err)
+
+          if (result)
+            # append to existing ids (without duplicates)
+            arr = JSON.parse(result)
+            arr.push(id)
+            arr = _.uniq(arr)
+          else
+            arr = [id]
+
+          # store the id
+          @redis.set key, JSON.stringify(arr), callb
       )
     ], ->
       callback() if callback?
@@ -158,6 +171,7 @@ class Connection
           return callback(new Error("Invalid term id"))
 
         term = JSON.parse(result).term
+
         # remove 
         async.parallel([
           ((callb) =>
@@ -171,22 +185,44 @@ class Connection
             ), callb
           ),
           ((callb) =>
-            @redis.del @key(type, @helper.normalize(term)), callb
+            key = @key(type, @helper.normalize(term))
+            @redis.get key, (err, result) =>
+              if (err)
+                return callb(err)
+
+              if (result == null)
+                return cb(new Error("Couldn't delete "+ id +". No such entry."))
+
+              arr = JSON.parse(result)
+
+              if (arr.toString() == [id].toString())
+                # delete it
+                return @redis.del key, callb
+
+              @redis.set key, JSON.stringify(_.without(arr, id)), callb
           )
-        ], ->
-          callback() if callback?
+        ], (err) ->
+          callback(err) if callback?
         )
 
-
-  # Public: Returns the ID for a term
+  # Public: Returns an array of IDs for a term
   
   # * 'type'    - the type of data for this term
   # * 'term'    - the term to find the unique identifiers for
   # * 'callback(err, result)' - result is the ID for the term
   
   # Returns nothing.
-  get_id: (type, term, callback) ->
-    @redis.get @key(type, @helper.normalize(term)), callback
+  get_ids: (type, term, callback) ->
+    @redis.get @key(type, @helper.normalize(term)), (err, result) ->
+      if (err)
+        return callback(err)
+
+      arr = JSON.parse(result)
+
+      if (arr == null)
+        return callback(null, [])
+
+      callback(null, arr)
 
 
   # Public: Returns the data for an ID
@@ -201,7 +237,8 @@ class Connection
       (err, result) ->
         if err
           return callback(err)
-        return callback(null, JSON.parse(result))
+
+        callback(null, JSON.parse(result))
 
   # Public: Get the redis instance
   #

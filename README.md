@@ -94,14 +94,14 @@ Remove a term
 
 Returns nothing.
 
-Get the ID for a term
--------------------------
+Get the IDs for a term
+----------------------
 
-`get_id (type, term, callback)`:
+`get_ids (type, term, callback)`:
 
 * `type`    - the type of data for this term
 * `term`    - the term to find the unique identifiers for
-* `callback(err, result)` - result is the ID for the term
+* `callback(err, result)` - result is an array of IDs for the term.  Empty array if none were found
 
 Get the data for an ID
 -----------------------
