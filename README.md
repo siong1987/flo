@@ -95,7 +95,7 @@ Remove a term
 Returns nothing.
 
 Get the ID for a term
--------------------------
+---------------------
 
 `get_id (type, term, callback)`:
 

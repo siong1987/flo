@@ -122,8 +122,21 @@
             return callb();
           });
         }), (function(callb) {
-          return _this.redis.set(_this.key(type, _this.helper.normalize(term)), id, function() {
-            return callb();
+          var key;
+          key = _this.key(type, _this.helper.normalize(term));
+          return _this.redis.get(key, function(err, result) {
+            var arr;
+            if (err) {
+              return callb(err);
+            }
+            if (result) {
+              arr = JSON.parse(result);
+              arr.push(id);
+              arr = _.uniq(arr);
+            } else {
+              arr = [id];
+            }
+            return _this.redis.set(key, JSON.stringify(arr), callb);
           });
         })
       ], function() {
@@ -154,18 +167,43 @@
               });
             }), callb);
           }), (function(callb) {
-            return _this.redis.del(_this.key(type, _this.helper.normalize(term)), callb);
+            var key;
+            key = _this.key(type, _this.helper.normalize(term));
+            return _this.redis.get(key, function(err, result) {
+              var arr;
+              if (err) {
+                return callb(err);
+              }
+              if (result === null) {
+                return cb(new Error("Couldn't delete " + id(+". No such entry.")));
+              }
+              arr = JSON.parse(result);
+              if (arr.toString() === [id].toString()) {
+                return _this.redis.del(key, callb);
+              }
+              return _this.redis.set(key, JSON.stringify(_.without(arr, id)), callb);
+            });
           })
-        ], function() {
+        ], function(err) {
           if (callback != null) {
-            return callback();
+            return callback(err);
           }
         });
       });
     };
 
-    Connection.prototype.get_id = function(type, term, callback) {
-      return this.redis.get(this.key(type, this.helper.normalize(term)), callback);
+    Connection.prototype.get_ids = function(type, term, callback) {
+      return this.redis.get(this.key(type, this.helper.normalize(term)), function(err, result) {
+        var arr;
+        if (err) {
+          return callback(err);
+        }
+        arr = JSON.parse(result);
+        if (arr === null) {
+          return callback(null, []);
+        }
+        return callback(null, arr);
+      });
     };
 
     Connection.prototype.get_data = function(type, id, callback) {

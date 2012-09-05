@@ -83,14 +83,13 @@
             return callback();
           });
         })
-      ], function() {
-        return flo.end();
-      });
+      ]);
     },
     'test remove_term': function() {
-      var all_data, term, term_data, term_id, term_score, term_type;
+      var all_data, term, term_data, term_id, term_id2, term_score, term_type;
       term_type = "foods";
       term_id = 2;
+      term_id2 = 3;
       term = "Burger";
       term_score = 10;
       term_data = {
@@ -106,9 +105,9 @@
         (function(next) {
           return flo.add_term(term_type, term_id, term, term_score, term_data, next);
         }), (function(next) {
-          return flo.get_id(term_type, term, function(err, id) {
+          return flo.get_ids(term_type, term, function(err, ids) {
             assert.isNull(err);
-            assert.eql(id, term_id);
+            assert.eql(ids, [term_id]);
             return next();
           });
         }), (function(next) {
@@ -118,10 +117,25 @@
             return next();
           });
         }), (function(next) {
+          return flo.add_term(term_type, term_id2, term, term_score, term_data, next);
+        }), (function(next) {
+          return flo.get_ids(term_type, term, function(err, ids) {
+            assert.isNull(err);
+            assert.eql(ids, [term_id, term_id2]);
+            return next();
+          });
+        }), (function(next) {
           return flo.remove_term(term_type, term_id, next);
+        }), (function(next) {
+          return flo.remove_term(term_type, term_id2, next);
         }), (function(next) {
           return flo.remove_term(term_type, term_id, function(err) {
             assert.isNotNull(err);
+            return next();
+          });
+        }), (function(next) {
+          return flo.get_ids(term_type, term, function(err, ids) {
+            assert.eql(ids, []);
             return next();
           });
         }), (function(next) {
@@ -135,7 +149,7 @@
             return next();
           });
         })
-      ], function() {
+      ], function(err, results) {
         return flo.end();
       });
     }
