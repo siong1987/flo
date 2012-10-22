@@ -127,10 +127,8 @@ class Connection
       ((callb) =>
         async.forEach @prefixes_for_phrase(term),
         ((w, cb) =>
-          @redis.zadd @key(type, "index", w), score, id, # sorted set
-          -> cb()
-        ), ->
-          callb()
+          @redis.zadd @key(type, "index", w), score, id, cb # sorted set
+        ), callb
       ),
       ((callb) =>
         key = @key(type, @helper.normalize(term))
@@ -180,8 +178,7 @@ class Connection
           ((callb) =>
             async.forEach @prefixes_for_phrase(term),
             ((w, cb) =>
-              @redis.zrem @key(type, "index", w), id,
-              -> cb()
+              @redis.zrem @key(type, "index", w), id, cb
             ), callb
           ),
           ((callb) =>
@@ -233,12 +230,11 @@ class Connection
   
   # Returns nothing.
   get_data: (type, id, callback) ->
-    @redis.hget @key(type, "data"), id,
-      (err, result) ->
-        if err
-          return callback(err)
+    @redis.hget @key(type, "data"), id, (err, result) ->
+      if err
+        return callback(err)
 
-        callback(null, JSON.parse(result))
+      callback(null, JSON.parse(result))
 
   # Public: Get the redis instance
   #

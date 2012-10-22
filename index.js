@@ -115,12 +115,8 @@
           });
         }), (function(callb) {
           return async.forEach(_this.prefixes_for_phrase(term), (function(w, cb) {
-            return _this.redis.zadd(_this.key(type, "index", w), score, id, function() {
-              return cb();
-            });
-          }), function() {
-            return callb();
-          });
+            return _this.redis.zadd(_this.key(type, "index", w), score, id, cb);
+          }), callb);
         }), (function(callb) {
           var key;
           key = _this.key(type, _this.helper.normalize(term));
@@ -162,9 +158,7 @@
             return _this.redis.hdel(_this.key(type, "data"), id, callb);
           }), (function(callb) {
             return async.forEach(_this.prefixes_for_phrase(term), (function(w, cb) {
-              return _this.redis.zrem(_this.key(type, "index", w), id, function() {
-                return cb();
-              });
+              return _this.redis.zrem(_this.key(type, "index", w), id, cb);
             }), callb);
           }), (function(callb) {
             var key;
