@@ -60,7 +60,7 @@ class Connection
       limit = 5
     callback = args[args.length-1]
 
-    async.map types, (type, callb) =>
+    async.map types, (type, callback) =>
       words = _.uniq(
         @helper.normalize(phrase).split(' ')
       ).sort()
@@ -68,31 +68,31 @@ class Connection
       # for caching purpose
       cachekey = @key(type, "cache", words.join('|'))
       async.waterfall([
-        ((cb) =>
-          @redis.exists cachekey, cb
+        ((callback) =>
+          @redis.exists cachekey, callback
         ),
-        ((exists, cb) =>
+        ((exists, callback) =>
           if !exists
             interkeys = _.map(words, (w) =>
               @key(type, "index", w)
             )
             @redis.zinterstore cachekey, interkeys.length, interkeys..., (err, count) =>
               @redis.expire cachekey, 10 * 60, -> # expire after 10 minutes
-                cb()
+                callback()
           else
-            cb()
+            callback()
         ),
-        ((cb) =>
+        ((callback) =>
           @redis.zrevrange cachekey, 0, (limit - 1), (err, ids) =>
             if ids.length > 0
-              @redis.hmget @key(type, "data"), ids..., cb
+              @redis.hmget @key(type, "data"), ids..., callback
             else
-              cb(null, [])
+              callback(null, [])
         )
       ], (err, results) ->
         data = {}
         data[type] = results
-        callb(err, data)
+        callback(err, data)
       )
     , (err, results) ->
       results = _.extend results...
@@ -118,24 +118,24 @@ class Connection
 
     # store the data in parallel
     async.parallel([
-      ((callb) =>
+      ((callback) =>
         @redis.hset @key(type, "data"), id,
           JSON.stringify id: id, term: term, score: score, data: (data || []),
           ->
-            callb()
+            callback()
       ),
-      ((callb) =>
+      ((callback) =>
         async.forEach @prefixes_for_phrase(term),
-        ((w, cb) =>
-          @redis.zadd @key(type, "index", w), score, id, cb # sorted set
-        ), callb
+        ((w, callback) =>
+          @redis.zadd @key(type, "index", w), score, id, callback # sorted set
+        ), callback
       ),
-      ((callb) =>
+      ((callback) =>
         key = @key(type, @helper.normalize(term))
         # do we already have this term?
         @redis.get key, (err, result) =>
           if (err)
-            return callb(err)
+            return callback(err)
 
           if (result)
             # append to existing ids (without duplicates)
@@ -146,7 +146,7 @@ class Connection
             arr = [id]
 
           # store the id
-          @redis.set key, JSON.stringify(arr), callb
+          @redis.set key, JSON.stringify(arr), callback
       )
     ], ->
       callback() if callback?
@@ -166,37 +166,37 @@ class Connection
         if err
           return callback(err)
         if result == null
-          return callback(new Error("Invalid term id"))
+          return callback(new Error("Invalid term id: "+ id))
 
         term = JSON.parse(result).term
 
         # remove 
         async.parallel([
-          ((callb) =>
-            @redis.hdel @key(type, "data"), id, callb
+          ((callback) =>
+            @redis.hdel @key(type, "data"), id, callback
           ),
-          ((callb) =>
+          ((callback) =>
             async.forEach @prefixes_for_phrase(term),
-            ((w, cb) =>
-              @redis.zrem @key(type, "index", w), id, cb
-            ), callb
+            ((w, callback) =>
+              @redis.zrem @key(type, "index", w), id, callback
+            ), callback
           ),
-          ((callb) =>
+          ((callback) =>
             key = @key(type, @helper.normalize(term))
             @redis.get key, (err, result) =>
               if (err)
-                return callb(err)
+                return callback(err)
 
               if (result == null)
-                return cb(new Error("Couldn't delete #{id}. No such entry."))
+                return callback(new Error("Couldn't delete #{id}. No such entry."))
 
               arr = JSON.parse(result)
 
               if (arr.toString() == [id].toString())
                 # delete it
-                return @redis.del key, callb
+                return @redis.del key, callback
 
-              @redis.set key, JSON.stringify(_.without(arr, id)), callb
+              @redis.set key, JSON.stringify(_.without(arr, id)), callback
           )
         ], (err) ->
           callback(err) if callback?

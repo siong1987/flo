@@ -49,14 +49,14 @@
         limit = 5;
       }
       callback = args[args.length - 1];
-      return async.map(types, function(type, callb) {
+      return async.map(types, function(type, callback) {
         var cachekey, words;
         words = _.uniq(_this.helper.normalize(phrase).split(' ')).sort();
         cachekey = _this.key(type, "cache", words.join('|'));
         return async.waterfall([
-          (function(cb) {
-            return _this.redis.exists(cachekey, cb);
-          }), (function(exists, cb) {
+          (function(callback) {
+            return _this.redis.exists(cachekey, callback);
+          }), (function(exists, callback) {
             var interkeys, _ref;
             if (!exists) {
               interkeys = _.map(words, function(w) {
@@ -64,19 +64,19 @@
               });
               return (_ref = _this.redis).zinterstore.apply(_ref, [cachekey, interkeys.length].concat(__slice.call(interkeys), [function(err, count) {
                 return _this.redis.expire(cachekey, 10 * 60, function() {
-                  return cb();
+                  return callback();
                 });
               }]));
             } else {
-              return cb();
+              return callback();
             }
-          }), (function(cb) {
+          }), (function(callback) {
             return _this.redis.zrevrange(cachekey, 0, limit - 1, function(err, ids) {
               var _ref;
               if (ids.length > 0) {
-                return (_ref = _this.redis).hmget.apply(_ref, [_this.key(type, "data")].concat(__slice.call(ids), [cb]));
+                return (_ref = _this.redis).hmget.apply(_ref, [_this.key(type, "data")].concat(__slice.call(ids), [callback]));
               } else {
-                return cb(null, []);
+                return callback(null, []);
               }
             });
           })
@@ -84,7 +84,7 @@
           var data;
           data = {};
           data[type] = results;
-          return callb(err, data);
+          return callback(err, data);
         });
       }, function(err, results) {
         results = _.extend.apply(_, results);
@@ -104,26 +104,26 @@
         callback = args[0];
       }
       return async.parallel([
-        (function(callb) {
+        (function(callback) {
           return _this.redis.hset(_this.key(type, "data"), id, JSON.stringify({
             id: id,
             term: term,
             score: score,
             data: data || []
           }), function() {
-            return callb();
+            return callback();
           });
-        }), (function(callb) {
-          return async.forEach(_this.prefixes_for_phrase(term), (function(w, cb) {
-            return _this.redis.zadd(_this.key(type, "index", w), score, id, cb);
-          }), callb);
-        }), (function(callb) {
+        }), (function(callback) {
+          return async.forEach(_this.prefixes_for_phrase(term), (function(w, callback) {
+            return _this.redis.zadd(_this.key(type, "index", w), score, id, callback);
+          }), callback);
+        }), (function(callback) {
           var key;
           key = _this.key(type, _this.helper.normalize(term));
           return _this.redis.get(key, function(err, result) {
             var arr;
             if (err) {
-              return callb(err);
+              return callback(err);
             }
             if (result) {
               arr = JSON.parse(result);
@@ -132,7 +132,7 @@
             } else {
               arr = [id];
             }
-            return _this.redis.set(key, JSON.stringify(arr), callb);
+            return _this.redis.set(key, JSON.stringify(arr), callback);
           });
         })
       ], function() {
@@ -150,32 +150,32 @@
           return callback(err);
         }
         if (result === null) {
-          return callback(new Error("Invalid term id"));
+          return callback(new Error("Invalid term id: " + id));
         }
         term = JSON.parse(result).term;
         return async.parallel([
-          (function(callb) {
-            return _this.redis.hdel(_this.key(type, "data"), id, callb);
-          }), (function(callb) {
-            return async.forEach(_this.prefixes_for_phrase(term), (function(w, cb) {
-              return _this.redis.zrem(_this.key(type, "index", w), id, cb);
-            }), callb);
-          }), (function(callb) {
+          (function(callback) {
+            return _this.redis.hdel(_this.key(type, "data"), id, callback);
+          }), (function(callback) {
+            return async.forEach(_this.prefixes_for_phrase(term), (function(w, callback) {
+              return _this.redis.zrem(_this.key(type, "index", w), id, callback);
+            }), callback);
+          }), (function(callback) {
             var key;
             key = _this.key(type, _this.helper.normalize(term));
             return _this.redis.get(key, function(err, result) {
               var arr;
               if (err) {
-                return callb(err);
+                return callback(err);
               }
               if (result === null) {
-                return cb(new Error("Couldn't delete " + id + ". No such entry."));
+                return callback(new Error("Couldn't delete " + id + ". No such entry."));
               }
               arr = JSON.parse(result);
               if (arr.toString() === [id].toString()) {
-                return _this.redis.del(key, callb);
+                return _this.redis.del(key, callback);
               }
-              return _this.redis.set(key, JSON.stringify(_.without(arr, id)), callb);
+              return _this.redis.set(key, JSON.stringify(_.without(arr, id)), callback);
             });
           })
         ], function(err) {
