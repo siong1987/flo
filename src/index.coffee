@@ -263,6 +263,7 @@ class Helper
 
   constructor: ->
     # Store array of latin special characters and their normal equivalent
+    # Also replace $ with s
     @latinChars = [
       ["a",/[\u00E0\u00E1\u00E2\u00E3\u00E4\u00E5\u0101\u0103\u0105\u01CE\u01DF\u01E1\u01FB\u0201\u0203\u0227\u0250\u0251\u0252]/g],
       ["b",/[\u0180\u0183\u0185\u0253\u0299]/g],
@@ -284,7 +285,7 @@ class Helper
       ["p",/[\u01A5]/g],
       ["q",/[\u024B\u02A0]/g],
       ["r",/[\u0155\u0157\u0159\u0211\u0213\u024D\u0279\u027A\u027B\u027C\u027D\u027E\u027F\u0280\u0281]/g],
-      ["s",/[\u015B\u015D\u015F\u0161\u0219\u023F\u0282]/g],
+      ["s",/[\$\u015B\u015D\u015F\u0161\u0219\u023F\u0282]/g],
       ["t",/[\u0163\u0165\u0167\u01AB\u01AD\u021B\u0236\u0287\u0288]/g],
       ["u",/[\u00F9\u00FA\u00FB\u00FC\u0169\u016B\u016D\u016F\u0171\u0173\u01B0\u01D4\u01D6\u01D8\u01DA\u01DC\u0215\u0217\u0289\u028A]/g],
       ["v",/[\u028B\u028C]/g],
