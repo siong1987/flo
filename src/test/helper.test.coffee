@@ -3,40 +3,22 @@ assert = require 'assert'
 
 module.exports =
   'test strip': () ->
-    result = helper.strip(" abc")
-    assert.equal("abc", result)
-
-    result = helper.strip("abc ")
-    assert.equal("abc", result)
-
-    result = helper.strip("  abc  ")
-    assert.equal("abc", result)
+    assert.equal("abc", helper.strip(" abc"))
+    assert.equal("abc", helper.strip("abc "))
+    assert.equal("abc", helper.strip("  abc  "))
 
   'test gsub': () ->
-    result = helper.gsub("-abc-abc-", /[^a-z0-9 ]/i, '')
-    assert.equal("abcabc", result)
-
-    result = helper.gsub("-abc-abc-", /[^a-z0-9 ]/i, '*')
-    assert.equal("*abc*abc*", result)
-
-    result = helper.gsub("!@#abc-!@#abc!@#", /[^a-z0-9 ]/i, '')
-    assert.equal("abcabc", result)
+    assert.equal("abcabc", helper.gsub("-abc-abc-", /[^a-z0-9 ]/i, ''))
+    assert.equal("*abc*abc*", helper.gsub("-abc-abc-", /[^a-z0-9 ]/i, '*'))
+    assert.equal("abcabc", helper.gsub("!@#abc-!@#abc!@#", /[^a-z0-9 ]/i, ''))
 
   'test gsub with errors': () ->
     # missing arguments should just return false
-    result = helper.gsub("-abc-abc-")
-    assert.equal("-abc-abc-", result)
-
-    result = helper.gsub("-abc-abc-", //)
-    assert.equal("-abc-abc-", result)
+    assert.equal("-abc-abc-", helper.gsub("-abc-abc-"))
+    assert.equal("-abc-abc-", helper.gsub("-abc-abc-", //))
 
   'test normalize': () ->
-    normalized_str = helper.normalize("a-bc")
-    assert.equal("abc", normalized_str)
-
-    normalized_str = helper.normalize("a bc")
-    assert.equal("a bc", normalized_str)
-
-    normalized_str = helper.normalize("a-b!@#$%^&*()c")
-    assert.equal("abc", normalized_str)
+    assert.equal("abc", helper.normalize("a-bc"))
+    assert.equal("a bc", helper.normalize("a bc"))
+    assert.equal("absc", helper.normalize("a-b!@#$%^&*()c"))
 

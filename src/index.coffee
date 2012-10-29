@@ -143,6 +143,7 @@ class Connection
             arr.push(id)
             arr = _.uniq(arr)
           else
+            # create new array
             arr = [id]
 
           # store the id
@@ -193,9 +194,10 @@ class Connection
               arr = JSON.parse(result)
 
               if (arr.toString() == [id].toString())
-                # delete it
+                # delete it cause there's nothing left
                 return @redis.del key, callback
 
+              # remove from array
               @redis.set key, JSON.stringify(_.without(arr, id)), callback
           )
         ], (err) ->
@@ -262,7 +264,7 @@ class Helper
 
 
   constructor: ->
-    # Store array of latin special characters and their normal equivalent
+    # Store array of latin lower case special characters and their normal equivalent
     # Also replace $ with s
     @latinChars = [
       ["a",/[\u00E0\u00E1\u00E2\u00E3\u00E4\u00E5\u0101\u0103\u0105\u01CE\u01DF\u01E1\u01FB\u0201\u0203\u0227\u0250\u0251\u0252]/g],
@@ -299,7 +301,7 @@ class Helper
   #
   # Returns a normalized term.
   normalize: (term) ->
-    @strip(@replaceLatin(term).replace(/[^a-z0-9 ]/gi, ''))
+    @strip(@replaceLatin(term.toLowerCase()).replace(/[^a-z0-9 ]/gi, ''))
 
   # Public: This function partially simulates the Ruby's String gsub method.
   #
@@ -344,8 +346,6 @@ class Helper
   #
   # Returns term with special characters replaced
   replaceLatin: (term) ->
-
-    term = term.toLowerCase()
 
     for translation in @latinChars
       do (translation) ->

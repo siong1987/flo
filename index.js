@@ -235,7 +235,7 @@
     }
 
     Helper.prototype.normalize = function(term) {
-      return this.strip(this.replaceLatin(term).replace(/[^a-z0-9 ]/gi, ''));
+      return this.strip(this.replaceLatin(term.toLowerCase()).replace(/[^a-z0-9 ]/gi, ''));
     };
 
     Helper.prototype.gsub = function(source, pattern, replacement) {
@@ -263,7 +263,6 @@
 
     Helper.prototype.replaceLatin = function(term) {
       var translation, _fn, _i, _len, _ref;
-      term = term.toLowerCase();
       _ref = this.latinChars;
       _fn = function(translation) {
         return term = term.replace(translation[1], translation[0]);
