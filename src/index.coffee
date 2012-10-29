@@ -301,7 +301,8 @@ class Helper
   #
   # Returns a normalized term.
   normalize: (term) ->
-    @strip(@replaceLatin(term.toLowerCase()).replace(/[^a-z0-9 ]/gi, ''))
+    @strip(@replaceLatin(term.toLowerCase()).replace(/[\.\-]/g, ''))
+    #@strip(@replaceLatin(term.toLowerCase()).replace(/[^a-z0-9 ]/gi, ''))
 
   # Public: This function partially simulates the Ruby's String gsub method.
   #
