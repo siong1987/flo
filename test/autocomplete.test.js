@@ -17,8 +17,6 @@
       assert.eql(["a", "ab", "abc"], result);
       result = flo.prefixes_for_phrase("abc abc");
       assert.eql(["a", "ab", "abc"], result);
-      result = flo.prefixes_for_phrase("a(*&^%bc");
-      assert.eql(["a", "ab", "abc"], result);
       result = flo.prefixes_for_phrase("how are you");
       return assert.eql(["h", "ho", "how", "a", "ar", "are", "y", "yo", "you"], result);
     },
@@ -86,10 +84,11 @@
       ]);
     },
     'test remove_term': function() {
-      var all_data, term, term_data, term_id, term_id2, term_score, term_type;
+      var all_data, term, term_data, term_id, term_id2, term_id3, term_score, term_type;
       term_type = "foods";
       term_id = 2;
       term_id2 = 3;
+      term_id3 = 4;
       term = "Burger";
       term_score = 10;
       term_data = {
@@ -125,9 +124,18 @@
             return next();
           });
         }), (function(next) {
-          return flo.remove_term(term_type, term_id, next);
+          return flo.add_term(term_type, term_id3, term, term_score, term_data, next);
         }), (function(next) {
           return flo.remove_term(term_type, term_id2, next);
+        }), (function(next) {
+          return flo.remove_term(term_type, term_id, next);
+        }), (function(next) {
+          return flo.get_ids(term_type, term, function(err, ids) {
+            assert.eql(ids, [term_id3]);
+            return next();
+          });
+        }), (function(next) {
+          return flo.remove_term(term_type, term_id3, next);
         }), (function(next) {
           return flo.remove_term(term_type, term_id, function(err) {
             assert.isNotNull(err);

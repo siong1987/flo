@@ -20,5 +20,5 @@ module.exports =
   'test normalize': () ->
     assert.equal("abc", helper.normalize("a-bc"))
     assert.equal("a bc", helper.normalize("a bc"))
-    assert.equal("absc", helper.normalize("a-b!@#$%^&*()c"))
+    assert.equal("ab!@#s%^&*()c", helper.normalize("a-b!@#$%^&*()c"))
 

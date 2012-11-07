@@ -24,7 +24,7 @@
     'test normalize': function() {
       assert.equal("abc", helper.normalize("a-bc"));
       assert.equal("a bc", helper.normalize("a bc"));
-      return assert.equal("absc", helper.normalize("a-b!@#$%^&*()c"));
+      return assert.equal("ab!@#s%^&*()c", helper.normalize("a-b!@#$%^&*()c"));
     }
   };
 

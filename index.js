@@ -171,11 +171,11 @@
               if (result === null) {
                 return callback(new Error("Couldn't delete " + id + ". No such entry."));
               }
-              arr = JSON.parse(result);
-              if (arr.toString() === [id].toString()) {
+              arr = _.without(JSON.parse(result), id);
+              if (arr.length === 0) {
                 return _this.redis.del(key, callback);
               }
-              return _this.redis.set(key, JSON.stringify(_.without(arr, id)), callback);
+              return _this.redis.set(key, JSON.stringify(arr), callback);
             });
           })
         ], function(err) {

@@ -11,8 +11,8 @@ module.exports =
     result = flo.prefixes_for_phrase("abc abc")
     assert.eql(["a", "ab", "abc"], result)
 
-    result = flo.prefixes_for_phrase("a(*&^%bc")
-    assert.eql(["a", "ab", "abc"], result)
+    # result = flo.prefixes_for_phrase("a(*&^%bc")
+    # assert.eql(["a", "ab", "abc"], result)
 
     result = flo.prefixes_for_phrase("how are you")
     assert.eql(["h","ho","how","a","ar","are","y","yo","you"], result)
@@ -83,6 +83,7 @@ module.exports =
     term_type = "foods"
     term_id = 2
     term_id2 = 3
+    term_id3 = 4
     term = "Burger"
     term_score = 10
     term_data =
@@ -125,25 +126,44 @@ module.exports =
             next()
       ),
       ((next) ->
-        flo.remove_term term_type, term_id, next
+        # add a third duplicate with new id
+        flo.add_term term_type, term_id3, term, term_score, term_data, next
       ),
       ((next) ->
+        # remove second
         flo.remove_term term_type, term_id2, next
       ),
       ((next) ->
-        # second call should return an error
+        # remove first
+        flo.remove_term term_type, term_id, next
+      ),
+      ((next) ->
+        # check to see that the third is still in there
+        flo.get_ids term_type, term,
+          (err, ids) ->
+            assert.eql ids, [term_id3]
+            next()
+      ),
+      ((next) ->
+        # remove third
+        flo.remove_term term_type, term_id3, next
+      ),
+      ((next) ->
+        # should return an error cause there are no more terms to remove
         flo.remove_term term_type, term_id,
           (err) ->
             assert.isNotNull(err)
             next()
       ),
       ((next) ->
+        # should return empty array (no more terms)
         flo.get_ids term_type, term,
           (err, ids) ->
             assert.eql ids, []
             next()
       ),
       ((next) ->
+        # should return no results
         flo.search_term [term_type], term,
           (err, result) ->
             eql =

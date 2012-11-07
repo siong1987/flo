@@ -146,6 +146,8 @@ class Connection
             # create new array
             arr = [id]
 
+          # console.log("Added: #{id}: #{arr}")
+
           # store the id
           @redis.set key, JSON.stringify(arr), callback
       )
@@ -191,14 +193,16 @@ class Connection
               if (result == null)
                 return callback(new Error("Couldn't delete #{id}. No such entry."))
 
-              arr = JSON.parse(result)
+              arr = _.without(JSON.parse(result), id)
 
-              if (arr.toString() == [id].toString())
+              # console.log("Removed: #{id}: #{arr}")
+
+              if (arr.length == 0)
                 # delete it cause there's nothing left
                 return @redis.del key, callback
 
               # remove from array
-              @redis.set key, JSON.stringify(_.without(arr, id)), callback
+              @redis.set key, JSON.stringify(arr), callback
           )
         ], (err) ->
           callback(err) if callback?
